@@ -4,7 +4,7 @@ import random
 from multiprocessing import Process
 import boto3
 import json
-import sqlalchemy
+from sqlalchemy import text, create_engine
 
 
 random.seed(100)
@@ -21,7 +21,7 @@ class AWSDBConnector:
         self.PORT = 3306
         
     def create_db_connector(self):
-        engine = sqlalchemy.create_engine(f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}?charset=utf8mb4")
+        engine = create_engine(f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}?charset=utf8mb4")
         return engine
 
 
@@ -34,9 +34,12 @@ def run_infinite_post_data_loop():
         random_row = random.randint(0, 11000)
         engine = new_connector.create_db_connector()
         with engine.connect() as connection:
-            selected_row = connection.execute(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1") #sqlalchemy.exc.ObjectNotExecutableError: Not an executable object: 'SELECT * FROM pinterest_data LIMIT 7528, 1'
+            query = f"SELECT * FROM pinterest_data LIMIT {random_row}"
+            selected_row = connection.execute(text(query))
         for row in selected_row:
+            print(selected_row)
             result = dict(row)
+            print(2)
             requests.post("http://localhost:8000/pin/", json=result)
             print(result)
 
