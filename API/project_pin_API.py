@@ -30,3 +30,5 @@ def get_db_row(item: Data):
 
 if __name__ == '__main__':
     uvicorn.run("project_pin_API:app", host="localhost", port=8000)
+
+
