@@ -5,6 +5,8 @@ from multiprocessing import Process
 import boto3
 import json
 from sqlalchemy import text, create_engine
+from kafka import KafkaProducer
+
 
 
 random.seed(100)
@@ -26,7 +28,11 @@ class AWSDBConnector:
 
 
 new_connector = AWSDBConnector()
-
+kafka_producer = KafkaProducer(
+        bootstrap_servers="localhost:9092",
+        client_id = "ML data producer",
+        value_serializer = lambda mlmsg: json.dumps(mlmsg, default = str).encode("ascii")
+        )
 
 def run_infinite_post_data_loop():
     while True:
@@ -43,6 +49,8 @@ def run_infinite_post_data_loop():
             print(result)
             requests.post("http://localhost:8000/pin/", json=result)
             print(result)
+            msg = json.dumps(result, default = str).encode("ascii")
+            kafka_producer.send("MLData", value = msg)
 
 
 if __name__ == "__main__":
