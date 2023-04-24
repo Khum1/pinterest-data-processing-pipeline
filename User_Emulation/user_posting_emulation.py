@@ -48,7 +48,6 @@ def run_infinite_post_data_loop():
         #     result = dict(row)
             print(result)
             requests.post("http://localhost:8000/pin/", json=result)
-            print(result)
             msg = json.dumps(result, default = str).encode("ascii")
             kafka_producer.send("MLData", value = msg)
 
