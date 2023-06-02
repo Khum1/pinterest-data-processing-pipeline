@@ -99,7 +99,7 @@ def run_infinite_post_data_loop():
                     "value": pin_result
                     }
                 ]
-            })
+            }) 
             geo_payload = json.dumps({
                 "records": [
                     {      
