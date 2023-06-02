@@ -12,8 +12,7 @@ from post_processing.post_data import PostData
 
 
 random.seed(100)
-
-
+    
 class AWSDBConnector:
 
     def __init__(self):
@@ -61,11 +60,12 @@ new_connector = AWSDBConnector()
 upe = UserPostingEmulation()
 pd = PostData()
 
-
 def run_infinite_post_data_loop():
+
     while True:
         sleep(random.randrange(0, 2))
         engine = new_connector.create_db_connector()
+        
 
         with engine.connect() as connection:
 
@@ -78,6 +78,54 @@ def run_infinite_post_data_loop():
 
 
 
+            pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
+            geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
+            user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
+
+            # To send JSON messages you need to follow this structure
+            # pin_payload = json.dumps({
+            #     "records": [
+            #         {      
+            #         "value": {"index": pin_result["index"], "unique_id": pin_result["unique_id"], "title": pin_result["title"], "description": pin_result["description"], 
+            #                   "poster_name": pin_result["poster_name"], "follower_count": pin_result["follower_count"], "tag_list": pin_result["tag_list"], 
+            #                   "is_image_or_video": pin_result["is_image_or_video"], "image_src": pin_result["image_src"], "downloaded": pin_result["downloaded"], 
+            #                   "save_location": pin_result["save_location"], "category": pin_result["category"]}
+            #         }
+            #     ]
+            # })
+            pin_payload = json.dumps({
+                "records": [
+                    {      
+                    "value": pin_result
+                    }
+                ]
+            })
+            geo_payload = json.dumps({
+                "records": [
+                    {      
+                    "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"], 
+                              "country": geo_result["country"]}
+                    }
+                ]
+            })
+            user_payload = json.dumps({
+                "records": [
+                    {      
+                    "value": {"ind": user_result["ind"], "first_name": user_result["first_name"], "last_name": user_result["last_name"], "age": user_result["age"], 
+                              "date_joined": str(user_result["date_joined"])}
+                    }
+                ]
+            })  
+                               
+            headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
+
+            pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
+            geo_response = requests.request("POST", geo_invoke_url, headers=headers, data=geo_payload)
+            user_response = requests.request("POST", user_invoke_url, headers=headers, data=user_payload)
+
+            print(pin_response.status_code)
+            print(geo_response.status_code)
+            print(user_response.status_code)
 
 if __name__ == "__main__":
     run_infinite_post_data_loop()
