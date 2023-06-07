@@ -55,9 +55,43 @@ def run_infinite_post_data_loop():
             for row in user_selected_row:
                 user_result = dict(row._mapping)
             
-            print(pin_result)
-            print(geo_result)
-            print(user_result)
+            pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
+            pin_payload = json.dumps({
+                "records": [
+                    {"value" : pin_result}
+                ]
+            })
+            
+            geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
+            geo_payload = json.dumps({
+                "records": [
+                    {
+                    "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"],
+                              "country": geo_result["country"]}
+                    }
+                ]
+            })
+
+            user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
+            user_payload = json.dumps({
+                "records": [
+                    {
+                    "value": {"ind": user_result["ind"], "first_name": str(user_result["first_name"]), "last_name": user_result["last_name"], "age": user_result["age"],
+                              "date_joined": str(user_result["date_joined"])}
+                    }
+                ]
+            })
+
+            headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
+            
+            pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
+            geo_response = requests.request("POST", geo_invoke_url, headers=headers, data= geo_payload)
+            user_response = requests.request("POST", user_invoke_url, headers=headers, data= user_payload)
+
+
+            print(pin_response.status_code)
+            print(geo_response.status_code)
+            print(user_response.status_code)
 
 
 if __name__ == "__main__":
