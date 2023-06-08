@@ -1,8 +1,6 @@
 import requests
 from time import sleep
 import random
-from multiprocessing import Process
-import boto3
 import json
 import sqlalchemy
 from sqlalchemy import text
@@ -36,7 +34,7 @@ class UserPostingEmulation():
             
         for row in pin_selected_row:
             pin_result = dict(row._mapping)
-        return pin_result
+        self.pin_result = pin_result
 
     def geo_post(self, connection):
         geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
@@ -44,7 +42,7 @@ class UserPostingEmulation():
         
         for row in geo_selected_row:
             geo_result = dict(row._mapping)
-        return geo_result
+        self.geo_result = geo_result
 
     def user_post(self,connection):
         user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
@@ -52,7 +50,7 @@ class UserPostingEmulation():
         
         for row in user_selected_row:
             user_result = dict(row._mapping)
-        return user_result
+        self.user_result = user_result
     
 new_connector = AWSDBConnector()    
 upe = UserPostingEmulation()
@@ -68,25 +66,6 @@ def run_infinite_post_data_loop():
             upe.geo_post(connection)
             upe.user_post(connection)
 
-            geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
-            geo_payload = json.dumps({
-                "records": [
-                    {
-                    "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"],
-                              "country": geo_result["country"]}
-                    }
-                ]
-            })
-
-            user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
-            user_payload = json.dumps({
-                "records": [
-                    {
-                    "value": {"ind": user_result["ind"], "first_name": str(user_result["first_name"]), "last_name": user_result["last_name"], "age": user_result["age"],
-                              "date_joined": str(user_result["date_joined"])}
-                    }
-                ]
-            })
 
             headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
             
