@@ -25,43 +25,49 @@ class AWSDBConnector:
         engine = sqlalchemy.create_engine(f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}?charset=utf8mb4")
         return engine
 
+class UserPostingEmulation():
 
-new_connector = AWSDBConnector()
+    def __init__(self):
+        self.random_row = random.randint(0, 11000)
 
+    def pin_post(self, connection):
+        pin_string = text(f"SELECT * FROM pinterest_data LIMIT {self.random_row}, 1")
+        pin_selected_row = connection.execute(pin_string)
+            
+        for row in pin_selected_row:
+            pin_result = dict(row._mapping)
+        return pin_result
+
+    def geo_post(self, connection):
+        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
+        geo_selected_row = connection.execute(geo_string)
+        
+        for row in geo_selected_row:
+            geo_result = dict(row._mapping)
+        return geo_result
+
+    def user_post(self,connection):
+        user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
+        user_selected_row = connection.execute(user_string)
+        
+        for row in user_selected_row:
+            user_result = dict(row._mapping)
+        return user_result
+    
+new_connector = AWSDBConnector()    
+upe = UserPostingEmulation()
 
 def run_infinite_post_data_loop():
     while True:
         sleep(random.randrange(0, 2))
-        random_row = random.randint(0, 11000)
         engine = new_connector.create_db_connector()
 
         with engine.connect() as connection:
 
-            pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
-            pin_selected_row = connection.execute(pin_string)
-            
-            for row in pin_selected_row:
-                pin_result = dict(row._mapping)
+            upe.pin_post(connection)
+            upe.geo_post(connection)
+            upe.user_post(connection)
 
-            geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
-            geo_selected_row = connection.execute(geo_string)
-            
-            for row in geo_selected_row:
-                geo_result = dict(row._mapping)
-
-            user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
-            user_selected_row = connection.execute(user_string)
-            
-            for row in user_selected_row:
-                user_result = dict(row._mapping)
-            
-            pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
-            pin_payload = json.dumps({
-                "records": [
-                    {"value" : pin_result}
-                ]
-            })
-            
             geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
             geo_payload = json.dumps({
                 "records": [
