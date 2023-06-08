@@ -1,9 +1,14 @@
-import requests
 from time import sleep
 import random
-import json
 import sqlalchemy
 from sqlalchemy import text
+import sys
+import os
+current_directory = os.path.dirname(os.path.abspath(__file__))
+parent_directory = os.path.dirname(current_directory)
+sys.path.insert(0, parent_directory)
+from batch_processing.post_batch_data import PostBatchData
+
 
 
 random.seed(100)
@@ -37,7 +42,7 @@ class UserPostingEmulation():
         self.pin_result = pin_result
 
     def geo_post(self, connection):
-        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
+        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {self.random_row}, 1")
         geo_selected_row = connection.execute(geo_string)
         
         for row in geo_selected_row:
@@ -45,7 +50,7 @@ class UserPostingEmulation():
         self.geo_result = geo_result
 
     def user_post(self,connection):
-        user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
+        user_string = text(f"SELECT * FROM user_data LIMIT {self.random_row}, 1")
         user_selected_row = connection.execute(user_string)
         
         for row in user_selected_row:
@@ -54,6 +59,8 @@ class UserPostingEmulation():
     
 new_connector = AWSDBConnector()    
 upe = UserPostingEmulation()
+pbd = PostBatchData()
+
 
 def run_infinite_post_data_loop():
     while True:
@@ -66,17 +73,7 @@ def run_infinite_post_data_loop():
             upe.geo_post(connection)
             upe.user_post(connection)
 
-
-            headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
-            
-            pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
-            geo_response = requests.request("POST", geo_invoke_url, headers=headers, data= geo_payload)
-            user_response = requests.request("POST", user_invoke_url, headers=headers, data= user_payload)
-
-
-            print(pin_response.status_code)
-            print(geo_response.status_code)
-            print(user_response.status_code)
+            pbd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
 
 
 if __name__ == "__main__":
