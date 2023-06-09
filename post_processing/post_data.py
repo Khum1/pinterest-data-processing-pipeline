@@ -9,6 +9,8 @@ user_batch = UserPost(batch_headers)
 
 streaming_headers = {'Content-Type': 'application/json'}
 pin_streaming = PinPost(streaming_headers)
+geo_streaming = GeoPost(streaming_headers)
+user_streaming = UserPost(streaming_headers)
 
 class PostData():
     def post_batch_data(self, pin_result, geo_result, user_result):
@@ -16,7 +18,11 @@ class PostData():
         pin_batch.send_batch_request(pin_result)
         user_batch.send_batch_request(user_result)
 
-    def post_streaming_data(self, pin_result):
+    def post_streaming_data(self, pin_result, geo_result, user_result):
         pin_streaming.send_stream_request(pin_result)
+        geo_streaming.send_stream_request(geo_result)
+        user_streaming.send_stream_request(user_result)
+
+
 
 

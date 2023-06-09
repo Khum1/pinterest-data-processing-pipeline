@@ -6,16 +6,8 @@ class PinPost():
     def __init__(self, headers):
         self.headers = headers
         self.batch_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
-        self.stream_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/streams/streams/streaming-0a4e65e909bd-pin/record"
-
-    def __create_batch_payload(self, pin_result):
-        pin_payload = json.dumps({
-            "records": [
-                {"value" : pin_result}
-            ]
-        })
-        return pin_payload
-    
+        self.stream_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/streams/streaming-0a4e65e909bd-pin/record"
+   
     def __create_streaming_payload(self, pin_result):
         pin_payload = json.dumps({
         "StreamName": "streaming-0a4e65e909bd-pin",
@@ -30,7 +22,7 @@ class PinPost():
         return pin_payload
 
     def send_batch_request(self, pin_result):
-        pin_payload = self.__create_batch_payload(pin_result)
+        pin_payload = json.dumps({"records": [{"value" : pin_result}]})
         pin_response = requests.request("POST", self.batch_invoke_url, headers=self.headers, data=pin_payload)
         print(pin_response.status_code)
     

@@ -73,8 +73,8 @@ def run_infinite_post_data_loop():
             upe.geo_post(connection)
             upe.user_post(connection)
 
-            # pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
-            pd.post_streaming_data(pin_result = upe.pin_result)
+            pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
+            pd.post_streaming_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
 
 
 
