@@ -7,7 +7,7 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 parent_directory = os.path.dirname(current_directory)
 sys.path.insert(0, parent_directory)
-from batch_processing.post_batch_data import PostBatchData
+from post_processing.post_data import PostData
 
 
 
@@ -59,7 +59,7 @@ class UserPostingEmulation():
     
 new_connector = AWSDBConnector()    
 upe = UserPostingEmulation()
-pbd = PostBatchData()
+pd = PostData()
 
 
 def run_infinite_post_data_loop():
@@ -73,7 +73,10 @@ def run_infinite_post_data_loop():
             upe.geo_post(connection)
             upe.user_post(connection)
 
-            pbd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
+            # pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
+            pd.post_streaming_data(pin_result = upe.pin_result)
+
+
 
 
 if __name__ == "__main__":

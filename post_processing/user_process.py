@@ -19,7 +19,7 @@ class UserPost():
         return user_payload
         
 
-    def send_request(self, user_result):
+    def send_batch_request(self, user_result):
         user_payload = self.__create_payload(user_result)
         user_response = requests.request("POST", self.user_invoke_url, headers=self.headers, data= user_payload)
         print(user_response.status_code)

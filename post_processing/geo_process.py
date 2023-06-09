@@ -18,7 +18,7 @@ class GeoPost():
         })
         return geo_payload
 
-    def send_request(self, geo_result):
+    def send_batch_request(self, geo_result):
         geo_payload = self.__create_payload(geo_result)
         geo_response = requests.request("POST", self.geo_invoke_url, headers=self.headers, data= geo_payload)
         print(geo_response.status_code)
