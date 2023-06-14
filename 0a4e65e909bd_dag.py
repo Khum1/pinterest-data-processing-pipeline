@@ -3,18 +3,15 @@ from airflow import DAG
 from airflow.providers.databricks.operators.databricks import DatabricksSubmitRunOperator, DatabricksRunNowOperator
 from datetime import datetime, timedelta 
 
-
 #Define params for Submit Run Operator
 notebook_task = {
     'notebook_path': '/Users/katy.humphries96@gmail.com/Pinterest-S3-setup',
 }
 
-
 #Define params for Run Now Operator
 notebook_params = {
     "Variable":5
 }
-
 
 default_args = {
     'owner': 'Katy Humphries',
@@ -25,16 +22,12 @@ default_args = {
     'retry_delay': timedelta(minutes=2)
 }
 
-
 with DAG('databricks_dag',
-    # should be a datetime format
     start_date= datetime(2023, 6, 8, 10, 00),
-    # check out possible intervals, should be a string
     schedule_interval='@hourly',
     catchup=False,
     default_args=default_args
     ) as dag:
-
 
     opr_submit_run = DatabricksSubmitRunOperator(
         task_id='submit_run',
@@ -44,4 +37,4 @@ with DAG('databricks_dag',
         notebook_task=notebook_task
     )
     opr_submit_run
-
+    

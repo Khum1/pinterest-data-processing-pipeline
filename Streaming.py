@@ -68,6 +68,18 @@ def normalise_follower_count():
     return df
 
 def create_delta_table(df, type_of_record):
+    '''
+    Creates a delta table in databricks from the streaming data
+
+    Parameters
+    ----------
+    type_of_record : str
+        the type of record that is being added to the df e.g. "pin"
+
+    Returns
+    -------
+    None
+    '''
     df.writeStream \
     .format("delta") \
     .outputMode("append") \
@@ -98,7 +110,7 @@ pin_df = pin_df.withColumn("jsonData",from_json(col("data"),schema)) \
 pin_df = normalise_follower_count()
 pin_df = pin_df.withColumn("save_location", regexp_extract(col("save_location"), "(/data/).*", 0)) #Extracts the save location of the column 
 pin_df = pin_df.withColumnRenamed("index", "ind") #Renames the index column to ind to match the geo and user dfs
-# pin_df = pin_df.withColumn("ind",col("ind").cast("integer")) #Ensures ind column is an integer
+pin_df = pin_df.withColumn("ind",col("ind").cast("integer")) #Ensures ind column is an integer
 
 column_structure = ["ind", "unique_id", "title", "description", "follower_count", "poster_name", "tag_list", "is_image_or_video", "image_src", "save_location", "category"]
 pin_df = pin_df.select(column_structure) #Rstructures the column to the order in column_structure
@@ -123,9 +135,9 @@ geo_df = create_dataframe_from_stream_data("geo")
 geo_df = geo_df.withColumn("jsonData",from_json(col("data"),schema)) \
                    .select("jsonData.*")
 
-geo_df = geo_df.withColumn("coordinates", array(col("longitude"), col("latitude")))
-geo_df = geo_df.withColumn("timestamp", col("timestamp").cast("timestamp"))
-column_structure = ["ind", "country", "coordinates", "timestamp"]
+geo_df = geo_df.withColumn("coordinates", array(col("longitude"), col("latitude")))#Creates coordinates column
+geo_df = geo_df.withColumn("timestamp", col("timestamp").cast("timestamp"))#Changes the timestamp column into datatype timestamp
+column_structure = ["ind", "country", "coordinates", "timestamp"]#Structure of the dataframe
 geo_df = geo_df.select(column_structure)
 
 display(geo_df)
@@ -145,11 +157,10 @@ user_df = create_dataframe_from_stream_data("user")
 user_df = user_df.withColumn("jsonData",from_json(col("data"),schema)) \
                    .select("jsonData.*")
 
-user_df = user_df.withColumn("user_name", concat(col("first_name"),col("last_name")))
-user_df = user_df.drop("first_name", "last_name")
-user_df = user_df.withColumn("date_joined", col("date_joined").cast("timestamp"))
-
-column_structure = ["ind", "user_name", "age", "date_joined"]
+user_df = user_df.withColumn("user_name", concat(col("first_name"),col("last_name")))#Creates a username from the first_name and last_name
+user_df = user_df.drop("first_name", "last_name")#Deletes the columns first_name and last_name
+user_df = user_df.withColumn("date_joined", col("date_joined").cast("timestamp"))#Changes the date_joined column into datatype timestamp
+column_structure = ["ind", "user_name", "age", "date_joined"]#Structure of the dataframe
 user_df = user_df.select(column_structure)
 
 display(user_df)

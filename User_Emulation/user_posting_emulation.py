@@ -28,8 +28,38 @@ class AWSDBConnector:
         return engine
 
 class UserPostingEmulation():
+    '''
+    A class to represent a user posting emulation
+
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    pin_post(connection, random_row)
+        gets pin data from a random_row in the pinterest_data table
+    geo_post(connection, random_row)
+        gets geolocation data from a random_row in the pinterest_data table
+    user_post(connection, random_row)
+        gets user data from a random_row in the pinterest_data table
+    '''
 
     def pin_post(self, connection, random_row):
+        '''
+        Gets pin data from a random_row in the pinterest_data table
+
+        Parameters
+        ----------
+        connection : 
+            forms a connection between the pinterest data table and the API server which the user emulation is running on
+        random_row : int
+            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
+
+        Returns
+        -------
+        None
+        '''
         pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
         pin_selected_row = connection.execute(pin_string)
             
@@ -38,6 +68,20 @@ class UserPostingEmulation():
         self.pin_result = pin_result
 
     def geo_post(self, connection, random_row):
+        '''
+        Gets geolocation data from a random_row in the pinterest_data table
+
+        Parameters
+        ----------
+        connection : 
+            forms a connection between the pinterest data table and the API server which the user emulation is running on
+        random_row : int
+            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
+
+        Returns
+        -------
+        None
+        '''
         geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
         geo_selected_row = connection.execute(geo_string)
         
@@ -46,6 +90,20 @@ class UserPostingEmulation():
         self.geo_result = geo_result
 
     def user_post(self,connection, random_row):
+        '''
+        Gets user data from a random_row in the pinterest_data table
+
+        Parameters
+        ----------
+        connection : 
+            forms a connection between the pinterest data table and the API server which the user emulation is running on
+        random_row : int
+            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
+
+        Returns
+        -------
+        None
+        '''
         user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
         user_selected_row = connection.execute(user_string)
         
@@ -58,7 +116,16 @@ upe = UserPostingEmulation()
 pd = PostData()
 
 def run_infinite_post_data_loop():
+    '''
+    Runs a loop which posts data from the pinterest_data table
 
+    Parameters
+    ----------
+    None
+
+    Returns
+    None
+    '''
     while True:
         sleep(random.randrange(0, 2))
         engine = new_connector.create_db_connector()
@@ -70,59 +137,8 @@ def run_infinite_post_data_loop():
             upe.geo_post(connection, random_row)
             upe.user_post(connection, random_row)
 
-            # pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
+            pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
             pd.post_streaming_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
-
-
-
-            # pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
-            # geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
-            # user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
-
-            # To send JSON messages you need to follow this structure
-            # pin_payload = json.dumps({
-            #     "records": [
-            #         {      
-            #         "value": {"index": pin_result["index"], "unique_id": pin_result["unique_id"], "title": pin_result["title"], "description": pin_result["description"], 
-            #                   "poster_name": pin_result["poster_name"], "follower_count": pin_result["follower_count"], "tag_list": pin_result["tag_list"], 
-            #                   "is_image_or_video": pin_result["is_image_or_video"], "image_src": pin_result["image_src"], "downloaded": pin_result["downloaded"], 
-            #                   "save_location": pin_result["save_location"], "category": pin_result["category"]}
-            #         }
-            #     ]
-            # })
-            # pin_payload = json.dumps({
-            #     "records": [
-            #         {      
-            #         "value": pin_result
-            #         }
-            #     ]
-            # }) 
-            # geo_payload = json.dumps({
-            #     "records": [
-            #         {      
-            #         "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"], 
-            #                   "country": geo_result["country"]}
-            #         }
-            #     ]
-            # })
-            # user_payload = json.dumps({
-            #     "records": [
-            #         {      
-            #         "value": {"ind": user_result["ind"], "first_name": user_result["first_name"], "last_name": user_result["last_name"], "age": user_result["age"], 
-            #                   "date_joined": str(user_result["date_joined"])}
-            #         }
-            #     ]
-            # })  
-                               
-            # headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
-
-            # pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
-            # geo_response = requests.request("POST", geo_invoke_url, headers=headers, data=geo_payload)
-            # user_response = requests.request("POST", user_invoke_url, headers=headers, data=user_payload)
-
-            # print(pin_response.status_code)
-            # print(geo_response.status_code)
-            # print(user_response.status_code)
 
 if __name__ == "__main__":
     run_infinite_post_data_loop()

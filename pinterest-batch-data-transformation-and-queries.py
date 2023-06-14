@@ -121,19 +121,34 @@ display(user_df)
 # COMMAND ----------
 
 def join_df(df1, df2):
+    '''
+    Joins 2 dataframes using the ind column as a reference
+
+    Parameters
+    ----------
+    df1 :
+        A dataframe to be joined
+    df2 :
+        A dataframe to be joined
+    '''
     joined_df = df1.join(df2, df1.ind == df2.ind, "inner")
     return joined_df
 
 def create_post_year(df, column):
     '''
-
+    Takes the year from the timestamp datatype, renames the column as post_year and changes the datatype to an integer
 
     Parameters
     ----------
-    df
-
+    df :
+        dataframe which has a column to be changed
     column : str
         the column that is to be changed to post_year
+
+    Returns
+    -------
+    df : 
+        dataframe with the column post_year
     '''
     df = df.withColumn(f"{column}", df[column].substr(1,4))
     df = df.withColumnRenamed(f"{column}", "post_year")
@@ -141,6 +156,19 @@ def create_post_year(df, column):
     return df
 
 def create_age_groups(df):
+    '''
+    Creates an age_group column using the age of the poster
+
+    Parameters
+    ----------
+    df :
+        the dataframe to be changed
+    
+    Returns
+    -------
+    df :
+        dataframe with the column age_group added
+    '''
     df = df.withColumn("age_group", when((df.age >= 18) & (df.age <= 24), "18-24")
                                              .when((df.age >= 25) & (df.age <= 35), "25-35")
                                              .when((df.age >=36) & (df.age <= 50), "36-50")
@@ -149,6 +177,21 @@ def create_age_groups(df):
     return df
 
 def find_most_popular_category(df, column):
+    '''
+    Finds the category which has been posted about the most ands adds the column category_count
+
+    Parameters
+    ----------
+    df :
+        dataframe to be changed
+    column : str
+        column to be comparing the category count to
+
+    Returns
+    -------
+    df
+        dataframe with the column category_count added
+    '''
     df = df.groupBy(column, "category").count().withColumnRenamed("count", "category_count")
     sorted_df = df.orderBy(col("category_count").desc())
     df = sorted_df.groupBy(column).agg( #sorting by each country
