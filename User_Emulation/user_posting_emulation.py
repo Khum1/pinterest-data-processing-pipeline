@@ -29,31 +29,28 @@ class AWSDBConnector:
 
 class UserPostingEmulation():
 
-    def __init__(self):
-        self.random_row = random.randint(0, 11000)
-
-    def pin_post(self, connection):
-        pin_string = text(f"SELECT * FROM pinterest_data LIMIT {self.random_row}, 1")
+    def pin_post(self, connection, random_row):
+        pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
         pin_selected_row = connection.execute(pin_string)
             
         for row in pin_selected_row:
-            pin_result = dict(row._mapping)
+            pin_result = dict(row)
         self.pin_result = pin_result
 
-    def geo_post(self, connection):
-        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {self.random_row}, 1")
+    def geo_post(self, connection, random_row):
+        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
         geo_selected_row = connection.execute(geo_string)
         
         for row in geo_selected_row:
-            geo_result = dict(row._mapping)
+            geo_result = dict(row)
         self.geo_result = geo_result
 
-    def user_post(self,connection):
-        user_string = text(f"SELECT * FROM user_data LIMIT {self.random_row}, 1")
+    def user_post(self,connection, random_row):
+        user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
         user_selected_row = connection.execute(user_string)
         
         for row in user_selected_row:
-            user_result = dict(row._mapping)
+            user_result = dict(row)
         self.user_result = user_result
     
 new_connector = AWSDBConnector()    
@@ -68,19 +65,19 @@ def run_infinite_post_data_loop():
         
 
         with engine.connect() as connection:
+            random_row = random.randint(0, 11000)
+            upe.pin_post(connection, random_row)
+            upe.geo_post(connection, random_row)
+            upe.user_post(connection, random_row)
 
-            upe.pin_post(connection)
-            upe.geo_post(connection)
-            upe.user_post(connection)
-
-            pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
+            # pd.post_batch_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
             pd.post_streaming_data(pin_result = upe.pin_result, geo_result = upe.geo_result, user_result = upe.user_result)
 
 
 
-            pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
-            geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
-            user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
+            # pin_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.pin"
+            # geo_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.geo"
+            # user_invoke_url = "https://spbr0nwvvl.execute-api.us-east-1.amazonaws.com/test/topics/0a4e65e909bd.user"
 
             # To send JSON messages you need to follow this structure
             # pin_payload = json.dumps({
@@ -93,39 +90,39 @@ def run_infinite_post_data_loop():
             #         }
             #     ]
             # })
-            pin_payload = json.dumps({
-                "records": [
-                    {      
-                    "value": pin_result
-                    }
-                ]
-            }) 
-            geo_payload = json.dumps({
-                "records": [
-                    {      
-                    "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"], 
-                              "country": geo_result["country"]}
-                    }
-                ]
-            })
-            user_payload = json.dumps({
-                "records": [
-                    {      
-                    "value": {"ind": user_result["ind"], "first_name": user_result["first_name"], "last_name": user_result["last_name"], "age": user_result["age"], 
-                              "date_joined": str(user_result["date_joined"])}
-                    }
-                ]
-            })  
+            # pin_payload = json.dumps({
+            #     "records": [
+            #         {      
+            #         "value": pin_result
+            #         }
+            #     ]
+            # }) 
+            # geo_payload = json.dumps({
+            #     "records": [
+            #         {      
+            #         "value": {"ind": geo_result["ind"], "timestamp": str(geo_result["timestamp"]), "latitude": geo_result["latitude"], "longitude": geo_result["longitude"], 
+            #                   "country": geo_result["country"]}
+            #         }
+            #     ]
+            # })
+            # user_payload = json.dumps({
+            #     "records": [
+            #         {      
+            #         "value": {"ind": user_result["ind"], "first_name": user_result["first_name"], "last_name": user_result["last_name"], "age": user_result["age"], 
+            #                   "date_joined": str(user_result["date_joined"])}
+            #         }
+            #     ]
+            # })  
                                
-            headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
+            # headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
 
-            pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
-            geo_response = requests.request("POST", geo_invoke_url, headers=headers, data=geo_payload)
-            user_response = requests.request("POST", user_invoke_url, headers=headers, data=user_payload)
+            # pin_response = requests.request("POST", pin_invoke_url, headers=headers, data=pin_payload)
+            # geo_response = requests.request("POST", geo_invoke_url, headers=headers, data=geo_payload)
+            # user_response = requests.request("POST", user_invoke_url, headers=headers, data=user_payload)
 
-            print(pin_response.status_code)
-            print(geo_response.status_code)
-            print(user_response.status_code)
+            # print(pin_response.status_code)
+            # print(geo_response.status_code)
+            # print(user_response.status_code)
 
 if __name__ == "__main__":
     run_infinite_post_data_loop()

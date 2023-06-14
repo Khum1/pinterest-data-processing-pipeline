@@ -39,4 +39,4 @@ class UserPost():
     def send_stream_request(self, user_result):
         user_payload = self.__create_streaming_payload(user_result)
         user_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=user_payload)
-        print(user_response.status_code)
+        print(f"user:{user_response.status_code}")

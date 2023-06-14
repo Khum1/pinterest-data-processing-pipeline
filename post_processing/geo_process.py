@@ -39,4 +39,4 @@ class GeoPost():
     def send_stream_request(self, geo_result):
         geo_payload = self.__create_streaming_payload(geo_result)
         pin_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=geo_payload)
-        print(pin_response.status_code)
+        print(f"geo:{pin_response.status_code}")

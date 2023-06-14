@@ -14,7 +14,7 @@ class PinPost():
         "Data": {
                 'index': pin_result["index"], 'unique_id': pin_result["unique_id"], 'title': pin_result["title"], 'description': pin_result["description"], 
                  'poster_name': pin_result["poster_name"], 'follower_count': pin_result["follower_count"], 'tag_list': pin_result["tag_list"], 
-                 'is_image_or_video': pin_result["index"], 'image_src': pin_result["index"], 'downloaded': pin_result["index"], 
+                 'is_image_or_video': pin_result["is_image_or_video"], 'image_src': pin_result["image_src"], 'downloaded': pin_result["downloaded"], 
                  'save_location': pin_result["save_location"], 'category': pin_result["category"]
                 },
             "PartitionKey": "pin-partition"
@@ -29,4 +29,4 @@ class PinPost():
     def send_stream_request(self, pin_result):
         pin_payload = self.__create_streaming_payload(pin_result)
         pin_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=pin_payload)
-        print(pin_response.status_code)
+        print(f"pin:{pin_response.status_code}")
