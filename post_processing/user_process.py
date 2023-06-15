@@ -108,7 +108,7 @@ class UserPost():
         '''
         user_payload = self.__create_batch_payload(user_result)
         user_response = requests.request("POST", self.user_invoke_url, headers=self.headers, data= user_payload)
-        print(user_response.status_code)
+        print(f"Batch user: {user_response.status_code}")
 
     def send_stream_request(self, user_result):
         '''
@@ -124,4 +124,4 @@ class UserPost():
         '''
         user_payload = self.__create_streaming_payload(user_result)
         user_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=user_payload)
-        print(f"user:{user_response.status_code}")
+        print(f"Stream user:{user_response.status_code}")

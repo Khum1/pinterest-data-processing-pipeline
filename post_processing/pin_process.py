@@ -84,7 +84,7 @@ class PinPost():
         '''
         pin_payload = json.dumps({"records": [{"value" : pin_result}]})
         pin_response = requests.request("POST", self.batch_invoke_url, headers=self.headers, data=pin_payload)
-        print(pin_response.status_code)
+        print(f"Batch pin: {pin_response.status_code}")
     
     def send_stream_request(self, pin_result):
         '''
@@ -100,4 +100,4 @@ class PinPost():
         '''
         pin_payload = self.__create_streaming_payload(pin_result)
         pin_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=pin_payload)
-        print(f"pin:{pin_response.status_code}")
+        print(f"Stream pin:{pin_response.status_code}")

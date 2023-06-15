@@ -108,7 +108,7 @@ class GeoPost():
         '''
         geo_payload = self.__create_batch_payload(geo_result)
         geo_response = requests.request("POST", self.batch_invoke_url, headers=self.headers, data= geo_payload)
-        print(geo_response.status_code)
+        print(f"Batch geo: {geo_response.status_code}")
 
     def send_stream_request(self, geo_result):
         '''
@@ -124,4 +124,4 @@ class GeoPost():
         '''
         geo_payload = self.__create_streaming_payload(geo_result)
         pin_response = requests.request("PUT", self.stream_invoke_url, headers=self.headers, data=geo_payload)
-        print(f"geo:{pin_response.status_code}")
+        print(f"Stream geo:{pin_response.status_code}")
