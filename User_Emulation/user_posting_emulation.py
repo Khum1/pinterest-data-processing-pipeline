@@ -7,7 +7,7 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 parent_directory = os.path.dirname(current_directory)
 sys.path.insert(0, parent_directory)
-from post_processing.post_data import PostData
+from Post_Processing.post_data import PostData
 
 
 
