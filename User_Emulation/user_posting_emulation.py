@@ -2,14 +2,11 @@ from time import sleep
 import random
 import sqlalchemy
 from sqlalchemy import text
-from User_Emulation.post_data import PostData
-
-
+from post_data import PostData
 
 random.seed(100)
     
 class AWSDBConnector:
-
     def __init__(self):
 
         self.HOST = "pinterestdbreadonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com"
@@ -56,83 +53,28 @@ class UserPostingEmulation():
         random_row : int
             a number between 1 and 11,000, corresponding to a row in the pinterest_data table
         '''
-        self.pin_result = self.pin_post(connection, random_row)
-        self.geo_result = self.geo_post(connection, random_row)
-        self.user_result = self.user_post(connection, random_row)
+        self.pin_result = self.post_pinterest_data(connection, random_row, "pinterest")
+        self.geo_result = self.post_pinterest_data(connection, random_row, "geolocation")
+        self.user_result = self.post_pinterest_data(connection, random_row, "user")
 
-
-    def pin_post(self, connection, random_row):
+    def post_pinterest_data(self, connection, random_row, type_of_record):
         '''
-        Gets pin data from a random_row in the pinterest_data table
+        Gets data from a random_row in the data tables corresponding to pinterest, geolocation and user data
 
         Parameters
         ----------
-        connection : 
-            forms a connection between the pinterest data table and the API server which the user emulation is running on
-        random_row : int
-            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
 
         Returns
         -------
-        pin_result : json
-            pin data from a random row in the pinterest_data table 
+        data_result : dict
+            data from a random row in the data table
         '''
-        pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
-        pin_selected_row = connection.execute(pin_string)
+        data_string = text(f"SELECT * FROM {type_of_record}_data LIMIT {random_row}, 1")
+        data_selected_row = connection.execute(data_string)
             
-        for row in pin_selected_row:
-            pin_result = dict(row)
-        return pin_result
-
-    def geo_post(self, connection, random_row):
-        '''
-        Gets geolocation data from a random_row in the pinterest_data table
-
-        Parameters
-        ----------
-        connection : 
-            forms a connection between the pinterest data table and the API server which the user emulation is running on
-        random_row : int
-            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
-
-        Returns
-        -------
-        geo_result : json
-            geolocation data from a random row in the pinterest_data table 
-        '''
-        geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
-        geo_selected_row = connection.execute(geo_string)
-        
-        for row in geo_selected_row:
-            geo_result = dict(row)
-        return geo_result
-
-    def user_post(self,connection, random_row):
-        '''
-        Gets user data from a random_row in the pinterest_data table
-
-        Parameters
-        ----------
-        connection : 
-            forms a connection between the pinterest data table and the API server which the user emulation is running on
-        random_row : int
-            a number between 1 and 11,000, corresponding to a row in the pinterest_data table
-
-        Returns
-        -------
-        user_result : json
-            user data from a random row in the pinterest_data table 
-        '''
-        user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
-        user_selected_row = connection.execute(user_string)
-        
-        for row in user_selected_row:
-            user_result = dict(row)
-        return user_result
-    
-new_connector = AWSDBConnector()    
-pd = PostData()
-
+        for row in data_selected_row:
+            data_result = dict(row)
+        return data_result
 
 def run_infinite_post_data_loop():
     '''
@@ -145,6 +87,8 @@ def run_infinite_post_data_loop():
     Returns
     None
     '''
+    new_connector = AWSDBConnector()    
+    pd = PostData()
     while True:
         sleep(random.randrange(0, 2))
         engine = new_connector.create_db_connector()
@@ -161,10 +105,6 @@ def run_infinite_post_data_loop():
                                 "longitude": upe.geo_result["longitude"], "country": upe.geo_result["country"]}
             user_data_structure = {"ind": upe.user_result["ind"], "first_name": str(upe.user_result["first_name"]), "last_name": upe.user_result["last_name"], 
                                     "age": upe.user_result["age"], "date_joined": str(upe.user_result["date_joined"])}    
-                  
-            upe.pin_post(connection, random_row)
-            upe.geo_post(connection, random_row)
-            upe.user_post(connection, random_row)
 
             pd.post_batch_data(pin_data_structure, geo_data_structure, user_data_structure)
             pd.post_streaming_data(pin_data_structure, geo_data_structure, user_data_structure)
@@ -172,4 +112,3 @@ def run_infinite_post_data_loop():
 if __name__ == "__main__":
     run_infinite_post_data_loop()
     print('Working')
-    
