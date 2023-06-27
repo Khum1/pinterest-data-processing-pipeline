@@ -1,19 +1,11 @@
 # Pinterest Data Processing Pipeline
 ## Overview
 Pinterest Data Processing Pipeline is an AWS project which uses MSK and S3 to perform batch processes and Kinesis to perform streaming processes. In this project I have completed a data processing pipeline using AWS and Databricks which connects to a user_posting_emulation to emulate a pinterest feed.
-The project is divided into 4 main directories - API, User_Emulation, Post_Processing and Databricks_Notebooks. This file structure is shown in the image below. 
+The project is divided into 2 main directories - User_Emulation and Databricks_Notebooks. 
 
-The API directory contins project_pin_API.py which runs the API that the user_posting_emulation connects to.
+The User_Emulation directory contains user_posting_emulation.py and post_data.py .
 
-The User_Emulation directory contains user_posting_emulation.py which runs an emulation of a pinterest feed, posting a random row of data from the table pinterest_data which includes pin data, golocation data and user data. During the while loop this file also sends the data to the batch and streaming processes.
-
-The Post_Processing directory contains 4 files:
-- geo_process.py
-- pin_process.py
-- user_process.py
-- post_data.py
-
-The first 3 listed, process the records to be sent to the API, this includes creating a payload and sending batch and streaming requests. 
+The user_posting emulation.py runs an emulation of a pinterest feed, posting a random row of data from predefined tables which includes pin data, geolocation data and user data. During the while loop this file also sends the data to the batch and streaming processes.
 
 The post_data.py file sends all of the above requests to the API.
 
@@ -30,17 +22,11 @@ The batch_transformation_and_queries.py file ingests and transforms the batch da
 
 streaming_transformation.py ingests and transforms the streaming data, and writes the streaming data to Delta Tables in Databricks. 
 
-
-![](Filestructure.png)
-
 ## To Run
 
 - Install Python (3.8.5)
 - Install dependencies in **requirements.txt** using pip 
-- In command line, from project directory **API**, execute:
-```
-python3 project_pin_API.py
-```
+
 - Copy the key-pair associated with the EC2 instance into a file named 0a4e65e909bd-key-pair.pem and set permissions to read only by executing:
 ```
 chmod 400 0a4e65e909bd-key-pair.pem
@@ -50,7 +36,7 @@ chmod 400 0a4e65e909bd-key-pair.pem
 ssh -i 0a4e65e909bd-key-pair.pem ec2-user@ec2-54-86-149-29.compute-1.amazonaws.com
 ```
 ```
-export CLASSPATH=/home/ec2-user/kafka_2.12-2.6.2/libs/aws-msk-iam-auth-1.1.5-all.jar
+export CLASSPATH=/home/ec2-user/kafka_2.12-2.8.1/libs/aws-msk-iam-auth-1.1.5-all.jar
 ```
 ```
 cd confluent-7.2.0/bin/
@@ -66,7 +52,7 @@ python3 user_posting_emulation.py
 ## Project Outline
 
 ### Milestone 1 & 2
-I set up my AWS account and downloaded the pinterest posting structure. This included the API to connect to the pinterest_database and the posting emulation, which at that time just took rows from the pinterest_database and posted them on the command line. 
+I set up my AWS account and downloaded the pinterest posting structure. This included the The posting emulation, which at that time just took rows from the pinterest_database and posted them on the command line. 
 
 ### Milestone 3
 This was the start of the batch processing pipeline. I created my key-pair.pem file to connect to the EC2 instance in my AWS account. I then set up Kafka on the EC2 instance and installed the IAM MSK authentication package, and made a client.properties file to configure the Kafka client to use IAM authentication.
